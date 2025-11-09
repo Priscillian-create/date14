@@ -506,6 +506,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const errorElement = document.getElementById('email-login-error');
+            
+            // Clear previous error
+            errorElement.textContent = '';
+            
+            // Validate inputs
+            if (!email || !password) {
+                errorElement.textContent = 'Please enter both email and password';
+                return;
+            }
+            
+            // Show loading state
             document.getElementById('emailLoginBtn').disabled = true;
             document.getElementById('emailLoginBtn').textContent = 'Signing In...';
             
@@ -516,6 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 
                 if (error) throw error;
+                
                 // Auth state change will handle the rest
             } catch (error) {
                 errorElement.textContent = error.message;
@@ -1103,15 +1115,41 @@ document.addEventListener('DOMContentLoaded', () => {
         const errorElement = document.getElementById('reset-password-error');
         const successElement = document.getElementById('reset-password-success');
         
+        // Clear previous messages
+        errorElement.textContent = '';
+        successElement.textContent = '';
+        
+        // Validate email
+        if (!email) {
+            errorElement.textContent = 'Please enter your email address';
+            return;
+        }
+        
+        // Show loading state
+        document.querySelector('.js-reset-password-btn').disabled = true;
+        document.querySelector('.js-reset-password-btn').textContent = 'Sending...';
+        
         supabase.auth.resetPasswordForEmail(email, {
             redirectTo: window.location.origin,
         }).then(({ data, error }) => {
+            // Reset button state
+            document.querySelector('.js-reset-password-btn').disabled = false;
+            document.querySelector('.js-reset-password-btn').textContent = 'Send Reset Link';
+            
             if (error) {
                 errorElement.textContent = error.message;
                 successElement.textContent = '';
             } else {
                 successElement.textContent = 'Password reset email sent. Check your inbox.';
                 errorElement.textContent = '';
+                
+                // Clear the email field
+                document.getElementById('resetEmail').value = '';
+                
+                // Close the modal after a delay
+                setTimeout(() => {
+                    closeModal('forgotPasswordModal');
+                }, 3000);
             }
         });
     }
@@ -1433,4 +1471,4 @@ document.addEventListener('DOMContentLoaded', () => {
             notification.classList.remove('show'); 
         }, 3000);
     }
-  });
+});
